@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusi E-Bikes Private Limited</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@200;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loader">
+  <div class="loader-logo">FUSI E-BIKES</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div class="loader-text">INITIALIZING SYSTEMS...</div>
+</div>
+
+<!-- PARTICLES -->
+<canvas id="particles"></canvas>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- OWNER LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚡ OWNER ACCESS</div>
+      <div class="modal-sub">Restricted Portal — Authorized Personnel Only</div>
+    </div>
+    <div class="modal-body">
+      <div class="login-form">
+        <div class="form-group">
+          <label>Access ID</label>
+          <input type="text" id="loginUser" placeholder="Enter owner ID" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Secure Key</label>
+          <input type="password" id="loginPass" placeholder="••••••••" autocomplete="off">
+        </div>
+        <button class="btn-submit" onclick="doLogin()">AUTHENTICATE</button>
+        <div class="owner-hint">Default: ID <span>fusi_admin</span> · Key <span>ebikes2024</span></div>
+      </div>
+    </div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+  </div>
+</div>
+
+<!-- OWNER DASHBOARD PANEL -->
+<div class="owner-panel" id="ownerPanel">
+  <div class="owner-header">
+    <div class="owner-logo">⚡ FUSI OWNER PORTAL</div>
+    <div class="owner-actions">
+      <div class="owner-badge">● OWNER LOGGED IN</div>
+      <button class="owner-logout" onclick="ownerLogout()">LOGOUT</button>
+    </div>
+  </div>
+  <div class="owner-content">
+    <div class="owner-title">Content Manager</div>
+    <div class="owner-sub">Edit your website content, add products, and manage company information.</div>
+
+    <div class="owner-tabs">
+      <button class="otab-btn active" onclick="switchOTab('products',this)">PRODUCTS</button>
+      <button class="otab-btn" onclick="switchOTab('info',this)">COMPANY INFO</button>
+      <button class="otab-btn" onclick="switchOTab('preview',this)">LIVE PREVIEW</button>
+    </div>
+
+    <!-- PRODUCTS TAB -->
+    <div class="otab-panel active" id="otab-products">
+      <div class="add-product-form">
+        <div class="section-label" style="margin-bottom:24px;">ADD / EDIT PRODUCT</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Item Name</label>
+            <input type="text" id="newName" placeholder="e.g. Ola S1 Pro">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="newCat">
+              <option value="scooties">EV Scooties</option>
+              <option value="batteries">Lithium Batteries</option>
+              <option value="parts">Spare Parts</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (₹)</label>
+            <input type="text" id="newPrice" placeholder="e.g. 1,24,999">
+          </div>
+          <div class="form-group">
+            <label>Stock Status</label>
+            <select id="newStock">
+              <option>In Stock</option>
+              <option>Limited Stock</option>
+              <option>Pre-Order</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="newDesc" placeholder="Product description, specs, highlights..." style="height:80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Emoji / Icon</label>
+          <input type="text" id="newEmoji" placeholder="🛵 or 🔋 or ⚙️" value="🛵">
+        </div>
+        <button class="btn-submit" id="addBtn" onclick="addOrUpdateProduct()">PUBLISH PRODUCT</button>
+      </div>
+      <div class="section-label" style="margin-bottom:24px;">CURRENT LISTINGS</div>
+      <div class="products-list" id="adminList"></div>
+    </div>
+
+    <!-- INFO TAB -->
+    <div class="otab-panel" id="otab-info">
+      <div class="edit-info-section">
+        <div class="add-product-form">
+          <div class="section-label" style="margin-bottom:24px;">COMPANY INFORMATION</div>
+          <div class="info-grid">
+            <div class="form-group"><label>Company Name</label><input type="text" id="infoName" placeholder="Fusi E-Bikes Private Limited"></div>
+            <div class="form-group"><label>Email</label><input type="text" id="infoEmail" placeholder="fusiebikes1@gmail.com"></div>
+            <div class="form-group"><label>Phone</label><input type="text" id="infoPhone" placeholder="+91 98765 43210"></div>
+            <div class="form-group"><label>WhatsApp</label><input type="text" id="infoWhatsapp" placeholder="+91 98765 43210"></div>
+            <div class="form-group"><label>Address Line 1</label><input type="text" id="infoAddr1" placeholder="Shop No., Street Name"></div>
+            <div class="form-group"><label>City, State</label><input type="text" id="infoAddr2" placeholder="Ahmedabad, Gujarat - 380001"></div>
+          </div>
+          <div class="form-group"><label>About Us (Short)</label><textarea id="infoAbout" placeholder="Brief description of your company..." style="height:90px;"></textarea></div>
+          <button class="btn-submit" onclick="saveInfo()">SAVE COMPANY INFO</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREVIEW TAB -->
+    <div class="otab-panel" id="otab-preview">
+      <div style="padding:30px;border:1px solid var(--border);background:var(--card);text-align:center;">
+        <div style="font-size:2rem;margin-bottom:16px;">👁️</div>
+        <div style="font-family:'Orbitron',monospace;color:#fff;margin-bottom:10px;">LIVE PREVIEW</div>
+        <div style="color:var(--muted);margin-bottom:24px;">Click below to see how your website looks to visitors right now.</div>
+        <button class="btn-primary" onclick="closeOwnerPanel()">VIEW PUBLIC WEBSITE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SECRET TRIGGER -->
+<div class="secret-trigger" id="secretTrigger"></div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="#home" class="nav-logo">
+    <div class="brand-logo-frame">⚡</div>
+    <span>FUSI E-BIKES</span>
+  </a>
+  <div class="nav-links">
+    <a href="#home" class="nav-link-home">HOME</a>
+    <a href="#about" class="nav-link-about">ABOUT</a>
+    <a href="#products">PRODUCTS</a>
+    <a href="#contact">CONTACT</a>
+    <button class="nav-cta" onclick="openModal()"><span>OWNER LOGIN</span></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-grid"></div>
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span>Gujarat's Premier EV Dealer</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="line1">POWER THAT</span>
+      <span class="line2 glitch" data-text="DRIVES YOU">DRIVES YOU</span>
+      <span class="line3">FORWARD</span>
+    </h1>
+    <p class="hero-sub">Premium Electric Scooties, Lithium Batteries & Genuine Spare Parts. Powering the future of clean mobility across India.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">EXPLORE PRODUCTS</button>
+      <button class="btn-secondary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">GET QUOTE</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num" data-target="500">0</div><div class="stat-label">Units Sold</div></div>
+      <div class="stat"><div class="stat-num" data-target="50">0</div><div class="stat-label">Products</div></div>
+      <div class="stat"><div class="stat-num" data-target="5">0</div><div class="stat-label">Years Exp.</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="bike-rings">
+      <div class="ring ring1"></div>
+      <div class="ring ring2"></div>
+      <div class="ring ring3"></div>
+      <div class="bike-icon-center">🛵</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span class="marquee-item">⚡ EV SCOOTIES</span><span class="marquee-sep">///</span>
+    <span class="marquee-item">🔋 LITHIUM BATTERIES</span><span class="marquee-sep">///</span>
+    <span class="marquee-item">⚙️ SPARE PARTS</span><span class="marquee-sep">///</span>
+    <span class="marquee-item">🏍️ FUSI E-BIKES PVT LTD</span><span class="marquee-sep">///</span>
+    <span class="marquee-item">📧 FUSIEBIKES1@GMAIL.COM</span><span class="marquee-sep">///</span>
+    <span class="marquee-item">⚡ CLEAN ENERGY FUTURE</span><span class="marquee-sep">///</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="reveal">
+    <div class="section-label">WHO WE ARE</div>
+    <h2 class="section-title">PIONEERING <span class="accent">ELECTRIC</span><br>MOBILITY IN INDIA</h2>
+    <p class="section-sub">Fusi E-Bikes Private Limited is a trusted dealer and distributor of premium electric vehicles, high-performance lithium batteries, and genuine spare parts in Gujarat.</p>
+  </div>
+  <div class="about-grid">
+    <div class="reveal-left">
+      <p style="color:var(--muted);line-height:1.9;margin-bottom:28px;">We are committed to making clean electric mobility accessible to every Indian household. From top-rated EV scooties to long-life lithium batteries and OEM-grade spare parts, we bring you the best at competitive prices with expert after-sales support.</p>
+      <div class="about-features">
+        <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-title">Fast Charging</div><div class="feat-desc">0–80% in under 3 hours on premium models</div></div>
+        <div class="feat-card"><div class="feat-icon">🛡️</div><div class="feat-title">OEM Quality</div><div class="feat-desc">Genuine parts with manufacturer warranty</div></div>
+        <div class="feat-card"><div class="feat-icon">🌱</div><div class="feat-title">Zero Emission</div><div class="feat-desc">100% electric — zero fuel, zero pollution</div></div>
+        <div class="feat-card"><div class="feat-icon">🔧</div><div class="feat-title">Expert Service</div><div class="feat-desc">In-house certified EV technicians</div></div>
+      </div>
+    </div>
+    <div class="reveal-right">
+      <div class="about-card-main">
+        <div class="tech-circle">
+          <div class="tech-inner">
+            <div class="tech-num">60V</div>
+            <div class="tech-unit">MAX VOLTAGE</div>
+          </div>
+        </div>
+        <div class="specs">
+          <div class="spec-row"><span class="spec-key">Battery Type</span><span class="spec-val">Li-Ion / LiFePO4</span></div>
+          <div class="spec-row"><span class="spec-key">Range (Full Charge)</span><span class="spec-val">Up to 120 km</span></div>
+          <div class="spec-row"><span class="spec-key">Warranty</span><span class="spec-val">3 Year Battery</span></div>
+          <div class="spec-row"><span class="spec-key">Charging Time</span><span class="spec-val">3–5 Hours</span></div>
+          <div class="spec-row"><span class="spec-key">Top Speed</span><span class="spec-val">60–90 kmph</span></div>
+          <div class="spec-row"><span class="spec-key">Service Network</span><span class="spec-val">Pan Gujarat</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="reveal">
+    <div class="section-label">WHAT WE SELL</div>
+    <h2 class="section-title">OUR <span class="accent">PRODUCT</span> CATALOG</h2>
+    <p class="section-sub">Browse our curated selection of EV scooties, batteries, and spare parts. Owner can update all listings live.</p>
+  </div>
+  <div class="tabs reveal">
+    <button class="tab-btn active" onclick="switchTab('scooties',this)">🛵 EV SCOOTIES</button>
+    <button class="tab-btn" onclick="switchTab('batteries',this)">🔋 LITHIUM BATTERIES</button>
+    <button class="tab-btn" onclick="switchTab('parts',this)">⚙️ SPARE PARTS</button>
+  </div>
+  <div class="tab-panel active" id="tab-scooties" data-cat="scooties"></div>
+  <div class="tab-panel" id="tab-batteries" data-cat="batteries"></div>
+  <div class="tab-panel" id="tab-parts" data-cat="parts"></div>
+</section>
+
+<!-- BATTERY LIGHTNING SHOWCASE -->
+<div class="scroll-lightning" id="scrollLightning"></div>
+<div class="charge-topbar" id="chargeTopbar"></div>
+
+<section id="battery-showcase" class="battery-section">
+  <div class="reveal">
+    <div class="section-label">POWER TECHNOLOGY</div>
+    <h2 class="section-title">BATTERY <span class="accent">INNOVATION</span> <span class="section-bolt">⚡</span></h2>
+    <p class="section-sub">State-of-the-art lithium battery technology engineered for maximum range, longevity, and safety.</p>
+  </div>
+  <div class="batt-showcase-grid">
+    <div class="batt-visual battery-fly">
+      <div class="batt-3d glow-pulse" id="battMain" style="--fill:78%;">
+        <div class="batt-lightning-bolt">⚡</div>
+        <div class="batt-fill-text" id="battPct">0%</div>
+        <div class="batt-fill-label">CHARGE LEVEL</div>
+      </div>
+      <div style="width:200px;">
+        <div style="display:flex;justify-content:space-between;font-family:'Orbitron',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:6px;letter-spacing:1px;">
+          <span>ENERGY</span><span id="battKw">0 kWh</span>
+        </div>
+        <div class="batt-bar-wrap"><div class="batt-bar" id="energyBar" style="--charge:85%;"></div></div>
+      </div>
+      <div style="width:200px;">
+        <div style="display:flex;justify-content:space-between;font-family:'Orbitron',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:6px;letter-spacing:1px;">
+          <span>RANGE</span><span id="battRange">0 km</span>
+        </div>
+        <div class="batt-bar-wrap"><div class="batt-bar" id="rangeBar" style="--charge:70%;"></div></div>
+      </div>
+      <div style="width:200px;">
+        <div style="display:flex;justify-content:space-between;font-family:'Orbitron',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:6px;letter-spacing:1px;">
+          <span>HEALTH</span><span id="battHealth">0%</span>
+        </div>
+        <div class="batt-bar-wrap"><div class="batt-bar" id="healthBar" style="--charge:96%;"></div></div>
+      </div>
+    </div>
+    <div class="batt-specs" id="battSpecs">
+      <div class="batt-spec-item" style="transition-delay:0.1s"><div class="batt-spec-label">⚡ Voltage Range</div><div class="batt-spec-val">48V / 60V / 72V Packs</div></div>
+      <div class="batt-spec-item" style="transition-delay:0.2s"><div class="batt-spec-label">🔋 Cell Chemistry</div><div class="batt-spec-val">Li-Ion & LiFePO4</div></div>
+      <div class="batt-spec-item" style="transition-delay:0.3s"><div class="batt-spec-label">⏱ Charge Time</div><div class="batt-spec-val">3–5 Hours (Full Charge)</div></div>
+      <div class="batt-spec-item" style="transition-delay:0.4s"><div class="batt-spec-label">🌡 Temperature</div><div class="batt-spec-val">-20°C to +60°C Operating</div></div>
+      <div class="batt-spec-item" style="transition-delay:0.5s"><div class="batt-spec-label">🔁 Cycle Life</div><div class="batt-spec-val">1000+ Full Cycles</div></div>
+      <div class="batt-spec-item" style="transition-delay:0.6s"><div class="batt-spec-label">🛡 Protection</div><div class="batt-spec-val">BMS: Overcharge, Short, Temp</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section id="why">
+  <div class="reveal">
+    <div class="section-label">WHY FUSI</div>
+    <h2 class="section-title">REASONS TO <span class="accent">CHOOSE</span> US</h2>
+  </div>
+  <div class="why-grid">
+    <div class="why-card reveal"><div class="why-num">01</div><div class="why-title">GENUINE PRODUCTS</div><div class="why-desc">All our EVs and batteries are sourced directly from authorized manufacturers ensuring 100% authenticity and warranty coverage.</div></div>
+    <div class="why-card reveal" style="transition-delay:0.1s"><div class="why-num">02</div><div class="why-title">BEST PRICING</div><div class="why-desc">We offer competitive rates with zero hidden charges. EMI options available on all major EV scooties through leading banks.</div></div>
+    <div class="why-card reveal" style="transition-delay:0.2s"><div class="why-num">03</div><div class="why-title">AFTER SALES SUPPORT</div><div class="why-desc">Dedicated service team for repairs, battery replacement, and spare parts support. Available 6 days a week.</div></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label">GET IN TOUCH</div>
+    <h2 class="section-title">CONTACT <span class="accent">FUSI</span></h2>
+    <p class="section-sub">Have questions? Want a custom quote? Reach out and our team will respond within 24 hours.</p>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-info reveal-left">
+      <div class="contact-item"><div class="contact-icon">📧</div><div><div class="contact-label">Email</div><div class="contact-val" id="dispEmail">fusiebikes1@gmail.com</div></div></div>
+      <div class="contact-item"><div class="contact-icon">📞</div><div><div class="contact-label">Phone / WhatsApp</div><div class="contact-val" id="dispPhone">+91 98765 43210</div></div></div>
+      <div class="contact-item"><div class="contact-icon">📍</div><div><div class="contact-label">Address</div><div class="contact-val" id="dispAddr">Ahmedabad, Gujarat, India</div></div></div>
+    </div>
+    <div class="contact-form reveal-right">
+      <div class="section-label" style="margin-bottom:24px;">SEND ENQUIRY</div>
+      <div class="form-group"><label>Full Name</label><input type="text" placeholder="Your Name"></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" placeholder="+91 00000 00000"></div>
+      <div class="form-group"><label>Interested In</label>
+        <select>
+          <option>EV Scooty</option>
+          <option>Lithium Battery</option>
+          <option>Spare Parts</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Message</label><textarea placeholder="Tell us what you need..."></textarea></div>
+      <button class="btn-submit" onclick="sendEnquiry()">SEND ENQUIRY ⚡</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">
+        <div class="brand-logo-frame">⚡</div>
+        <span style="font-family:'Orbitron',monospace;font-weight:900;color:#fff;letter-spacing:1px;">FUSI E-BIKES</span>
+      </div>
+      <p class="footer-desc">Fusi E-Bikes Private Limited — Your trusted partner for premium electric vehicles, batteries, and spare parts in Gujarat. Driving a cleaner, greener future.</p>
+    </div>
+    <div>
+      <div class="footer-heading">QUICK LINKS</div>
+      <ul class="footer-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">CONTACT US</div>
+      <ul class="footer-links">
+        <li><a href="mailto:fusiebikes1@gmail.com">fusiebikes1@gmail.com</a></li>
+        <li><a href="#">+91 98765 43210</a></li>
+        <li><a href="#">Ahmedabad, Gujarat</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Fusi E-Bikes Private Limited. All Rights Reserved.</div>
+    <div class="footer-made">Powered by <span>⚡ Electric Innovation</span></div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
